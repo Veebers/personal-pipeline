@@ -1,0 +1,18 @@
+stage('Precheck') {
+    print('Checking things out.')
+}
+
+stage('Build') {
+    print('Building things.')
+}
+
+stage('testing') {
+    parallel(
+        'Xenial': {
+            print('Testing xenial!')
+        },
+        'Windows': {
+            print('Testing Windows!')
+        }
+    )
+}
