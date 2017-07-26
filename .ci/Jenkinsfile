@@ -1,18 +1,20 @@
-stage('Precheck') {
-    print('Checking things out.')
-}
+node('basic-node-0') {
+    stage('Precheck') {
+        print('Checking things out.')
+    }
 
-stage('Build') {
-    print('Building things.')
-}
+    stage('Build') {
+        print('Building things.')
+    }
 
-stage('testing') {
-    parallel(
-        'Xenial': {
-            print('Testing xenial!')
-        },
-        'Windows': {
-            print('Testing Windows!')
-        }
-    )
+    stage('testing') {
+        parallel(
+            'Xenial': {
+                print('Testing xenial!')
+            },
+            'Windows': {
+                print('Testing Windows!')
+            }
+        )
+    }
 }
