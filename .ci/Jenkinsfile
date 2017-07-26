@@ -7,7 +7,7 @@ node('basic-node-0') {
         print('Building things.')
     }
 
-    stage('testing') {
+    stage('Testing') {
         parallel(
             'Xenial': {
                 print('Testing xenial!')
