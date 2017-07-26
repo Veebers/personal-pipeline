@@ -1,4 +1,5 @@
 node('basic-node-0') {
+    def random = new Random()
     stage('Precheck') {
         print('Checking things out.')
     }
@@ -10,9 +11,11 @@ node('basic-node-0') {
     stage('Testing') {
         parallel(
             'Xenial': {
+                print(random.nextInt())
                 print('Testing xenial!')
             },
             'Windows': {
+                print(random.nextInt())
                 print('Testing Windows!')
             }
         )
