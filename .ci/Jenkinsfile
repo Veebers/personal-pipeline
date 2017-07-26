@@ -11,12 +11,16 @@ node('basic-node-0') {
     stage('Testing') {
         parallel(
             'Xenial': {
-                print(random.nextInt())
+                def random_sleep = random.nextInt(30) + 1
                 print('Testing xenial!')
+                sleep(random_sleep)
+                print(done)
             },
             'Windows': {
-                print(random.nextInt())
+                def random_sleep = random.nextInt(30) + 1
                 print('Testing Windows!')
+                sleep(random_sleep)
+                print('Done!')
             }
         )
     }
