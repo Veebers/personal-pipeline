@@ -2,7 +2,7 @@ node('basic-node-0') {
     def random = new Random()
     stage('Precheck') {
         print('Checking things out.')
-        githubNotify context: 'Notification key', description: 'This is a shorted example',  status: 'PENDING'
+        githubNotify context: 'continuous-integration/jenkins/pr-head', description: 'CI Run started.',  status: 'PENDING'
     }
 
     stage('Build') {
