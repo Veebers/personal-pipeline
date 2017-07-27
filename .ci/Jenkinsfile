@@ -19,7 +19,8 @@ node('basic-node-0') {
             print('Attempting to checkout source of PR')
             checkout scm
 
-            sh: "ls -lart *"
+            print(sh(script: "ls -lart *", returnStdout: true))
+            print(sh(script: "ls -lart ${work_dir}", returnStdout: true))
         }
     }
 
