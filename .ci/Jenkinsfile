@@ -20,7 +20,8 @@ node('basic-node-0') {
             checkout scm
 
             print(sh(script: "ls -lart *", returnStdout: true))
-            print(sh(script: "ls -lart ${work_dir}", returnStdout: true))
+
+            print(sh(script: "cat README.md", returnStdout: true))
         }
     }
 
