@@ -2,10 +2,15 @@ node('basic-node-0') {
     def random = new Random()
 
     work_dir = "${pwd(tmp: true)}/${env.BUILD_NUMBER}/"
+    scripts_dir = "${work_dir}/acceptancetests"
+    release_scripts = "${work_dir}/releasetests"
     print("Using workdir: ${work_dir}")
 
     stage('Precheck') {
-        print('Checking things out.')
+        if(env.CHANGE_TARGET == 'master' || env.CHANGE_TARGET == 'staging') {
+            error('No PRs or merges are accepted against this branch. Please submit your PR against either develop or a feature or release branch.')
+        }
+
         githubNotify(
             context: 'continuous-integration/jenkins/pr-head',
             description: 'CI Run started.',
@@ -13,33 +18,56 @@ node('basic-node-0') {
     }
 
     stage('Build') {
-        print('Building things.')
-
         dir(work_dir) {
-            print('Attempting to checkout source of PR')
             checkout scm
-            echo sh(returnStdout: true, script: 'env')
+            // echo sh(returnStdout: true, script: 'env')
+            sh(script: "${scripts_dir}/clean_lxd.py")
 
-            print(sh(script: "ls -lart *", returnStdout: true))
+            withEnv(["PATH+GO=/usr/lib/go-1.8/bin/"]) {
+                retcode = sh(script: "${release_scripts}/make-pr-tarball.bash ${env.CHANGE_ID}", returnStatus: true)
+                if(retcode != 0) {
+                    error("Failed to build.")
+                }
 
-            print(sh(script: "cat README.md", returnStdout: true))
+                go_src_path = sh(
+                    script: "find \"$work_dir\" -type d -name src -regex '.*juju-core[^/]*/src'",
+                    returnStdout: true).trim()
+                go_dir = sh(script: "dirname $go_src_path", returnStdout: true).trim()
+                // env.GOPATH = go_dir
+
+                try {
+                    withEnv(["GOPATH=${go_dir}"]) {
+                        sh 'echo Using $GOPATH'
+                        sh "echo go install github.com/juju/juju/..."
+                    }
+                } catch(e) {
+                    error "Failed to build: go install failed."
+                }
+            }
         }
     }
 
     stage('Testing') {
+        dir(work_dir) {
+            tarfile = sh(script: "find \"$work_dir\" -name juju-core*.tar.gz", returnStdout: true).trim()
+            print("Using build tarball: $tarfile")
+        }
+        xenial_ami = sh(
+            script: "${scripts_dir}/get_ami.py xenial amd64 --virt hvm",
+            returnStdout: true).trim()
         parallel(
             'Xenial': {
                 def random_sleep = random.nextInt(30) + 1
-                print('Testing xenial!')
-                sleep(random_sleep)
-                print('Done!')
+                try {
+                    sh("""
+                    echo . $JUJU_HOME/juju-qa.jujuci && echo . $JUJU_HOME/ec2rc >2 /dev/null && \\
+                    ${scripts_dir}/run-unit-tests c4.4xlarge $xenial_ami --local "$tarfile" --use-tmpfs --use-ppa ppa:juju/golang --force-archive
+                    """)
+                    sleep(random_sleep)
+                } catch(e) {
+                    error('Xenial test')
+                }
             },
-            'Windows': {
-                def random_sleep = random.nextInt(30) + 1
-                print('Testing Windows!')
-                sleep(random_sleep)
-                print('Done!')
-            }
         )
     }
 }
