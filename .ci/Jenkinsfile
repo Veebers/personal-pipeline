@@ -24,8 +24,8 @@ node('basic-node-0') {
 
             // Checkout cloud city
             print("Pretending to checkout cloud-city into ${cloud_city}")
-            sh(script: "touch ${cloud-city}/juju-qa.jujuci")
-            sh(script: "touch ${cloud-city}/ec2rc")
+            sh(script: "touch ${cloud_city}/juju-qa.jujuci")
+            sh(script: "touch ${cloud_city}/ec2rc")
 
             // echo sh(returnStdout: true, script: 'env')
             sh(script: "${scripts_dir}/clean_lxd.py")
