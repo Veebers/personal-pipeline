@@ -67,7 +67,7 @@ node('basic-node-0') {
             'Xenial': {
                 def random_sleep = random.nextInt(30) + 1
                 try {
-                    withEnv("JUJU_HOME=${cloud_city}"){
+                    withEnv(["JUJU_HOME=${cloud_city}"]){
                         print(". $JUJU_HOME/juju-qa.jujuci && . $JUJU_HOME/ec2rc >2 /dev/null")
                         print("${scripts_dir}/run-unit-tests c4.4xlarge $xenial_ami --local \"$tarfile\" --use-tmpfs --use-ppa ppa:juju/golang --force-archive")
                         sh("""
