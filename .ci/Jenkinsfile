@@ -7,7 +7,7 @@ node('basic-node-0') {
     print("Using workdir: ${work_dir}")
 
     stage('Precheck') {
-        if(env.CHANGE_TARGET == 'master' || env.CHANGE_TARGET == 'staging') {
+        if(env.CHANGE_TARGET == 'xmaster' || env.CHANGE_TARGET == 'xstaging') {
             error('No PRs or merges are accepted against this branch. Please submit your PR against either develop or a feature or release branch.')
         }
 
