@@ -1,9 +1,10 @@
 node('basic-node-0') {
     def random = new Random()
 
-    work_dir = "${pwd(tmp: true)}/${env.BUILD_NUMBER}/"
+    work_dir = "${pwd(tmp: true)}/${env.BUILD_NUMBER}"
     scripts_dir = "${work_dir}/acceptancetests"
     release_scripts = "${work_dir}/releasetests"
+    coud_city = "${work_dir/cloud-city}"
     print("Using workdir: ${work_dir}")
 
     stage('Precheck') {
@@ -20,6 +21,12 @@ node('basic-node-0') {
     stage('Build') {
         dir(work_dir) {
             checkout scm
+
+            // Checkout cloud city
+            print("Pretending to checkout cloud-city into ${cloud_city}")
+            sh(script: "touch ${cloud-city}/juju-qa.jujuci")
+            sh(script: "touch ${cloud-city}/ec2rc")
+
             // echo sh(returnStdout: true, script: 'env')
             sh(script: "${scripts_dir}/clean_lxd.py")
 
@@ -30,7 +37,7 @@ node('basic-node-0') {
                 }
 
                 go_src_path = sh(
-                    script: "find \"$work_dir\" -type d -name src -regex '.*juju-core[^/]*/src'",
+                    script: "find \"$work_dir/\" -type d -name src -regex '.*juju-core[^/]*/src'",
                     returnStdout: true).trim()
                 go_dir = sh(script: "dirname $go_src_path", returnStdout: true).trim()
                 // env.GOPATH = go_dir
@@ -49,7 +56,7 @@ node('basic-node-0') {
 
     stage('Testing') {
         dir(work_dir) {
-            tarfile = sh(script: "find \"$work_dir\" -name juju-core*.tar.gz", returnStdout: true).trim()
+            tarfile = sh(script: "find \"$work_dir/\" -name juju-core*.tar.gz", returnStdout: true).trim()
             print("Using build tarball: $tarfile")
         }
         xenial_ami = sh(
@@ -59,11 +66,15 @@ node('basic-node-0') {
             'Xenial': {
                 def random_sleep = random.nextInt(30) + 1
                 try {
-                    sh("""
-                    echo . $JUJU_HOME/juju-qa.jujuci && echo . $JUJU_HOME/ec2rc >2 /dev/null && \\
-                    ${scripts_dir}/run-unit-tests c4.4xlarge $xenial_ami --local "$tarfile" --use-tmpfs --use-ppa ppa:juju/golang --force-archive
-                    """)
-                    sleep(random_sleep)
+                    withEnv("JUJU_HOME=${cloud_city}"){
+                        print(". $JUJU_HOME/juju-qa.jujuci && . $JUJU_HOME/ec2rc >2 /dev/null")
+                        print("${scripts_dir}/run-unit-tests c4.4xlarge $xenial_ami --local \"$tarfile\" --use-tmpfs --use-ppa ppa:juju/golang --force-archive")
+                        sh("""
+                        . $JUJU_HOME/juju-qa.jujuci && . $JUJU_HOME/ec2rc >2 /dev/null && \\
+                        ${scripts_dir}/run-unit-tests c4.4xlarge $xenial_ami --local "$tarfile" --use-tmpfs --use-ppa ppa:juju/golang --force-archive
+                        """)
+                        sleep(random_sleep)
+                    }
                 } catch(e) {
                     error('Xenial test')
                 }
