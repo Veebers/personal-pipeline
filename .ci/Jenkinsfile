@@ -1,12 +1,26 @@
 node('basic-node-0') {
     def random = new Random()
+
+    work_dir = "${pwd(tmp: true)}/${ref}-${env.BUILD_NUMBER}/"
+    print("Using workdir: ${work_dir}")
+
     stage('Precheck') {
         print('Checking things out.')
-        githubNotify context: 'continuous-integration/jenkins/pr-head', description: 'CI Run started.',  status: 'PENDING'
+        githubNotify(
+            context: 'continuous-integration/jenkins/pr-head',
+            description: 'CI Run started.',
+            status: 'PENDING')
     }
 
     stage('Build') {
         print('Building things.')
+
+        dir(work_dir) {
+            print('Attempting to checkout source of PR')
+            checkout scm
+
+            sh: "ls -lart *"
+        }
     }
 
     stage('Testing') {
