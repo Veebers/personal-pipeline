@@ -18,7 +18,7 @@ node('basic-node-0') {
         dir(work_dir) {
             print('Attempting to checkout source of PR')
             checkout scm
-            print(sh(script: "ls -lart ${work_dir}", returnStdout: true))
+            echo sh(returnStdout: true, script: 'env')
 
             print(sh(script: "ls -lart *", returnStdout: true))
 
