@@ -4,7 +4,7 @@ node('basic-node-0') {
     work_dir = "${pwd(tmp: true)}/${env.BUILD_NUMBER}"
     scripts_dir = "${work_dir}/acceptancetests"
     release_scripts = "${work_dir}/releasetests"
-    coud_city = "${work_dir/cloud-city}"
+    cloud_city = "${work_dir}/cloud-city"
     print("Using workdir: ${work_dir}")
 
     stage('Precheck') {
