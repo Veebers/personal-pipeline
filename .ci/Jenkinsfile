@@ -1,7 +1,7 @@
 node('basic-node-0') {
     def random = new Random()
 
-    work_dir = "${pwd(tmp: true)}/${ref}-${env.BUILD_NUMBER}/"
+    work_dir = "${pwd(tmp: true)}/${env.BUILD_NUMBER}/"
     print("Using workdir: ${work_dir}")
 
     stage('Precheck') {
