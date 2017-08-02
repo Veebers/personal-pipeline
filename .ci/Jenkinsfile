@@ -12,8 +12,10 @@ node('basic-node-0') {
             error('No PRs or merges are accepted against this branch. Please submit your PR against either develop or a feature or release branch.')
         }
 
+        // notify_contrxt = 'continuous-integration/jenkins/pr-head'
+        notify_contrxt = 'ci-testing/veebers'
         githubNotify(
-            context: 'continuous-integration/jenkins/pr-head',
+            context: notify_context,
             description: 'CI Run started.',
             status: 'PENDING')
     }
@@ -94,6 +96,7 @@ node('basic-node-0') {
                 } catch(e) {
                     error('Windows test')
                 }
+            },
         )
     }
 }
