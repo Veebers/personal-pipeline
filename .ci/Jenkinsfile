@@ -12,9 +12,7 @@ node('basic-node-0') {
             error('No PRs or merges are accepted against this branch. Please submit your PR against either develop or a feature or release branch.')
         }
 
-        // I'm pretty sure this should be /pr-merge with the current strategy.
-        // notify_contrxt = 'continuous-integration/jenkins/pr-head'
-        notify_context = 'ci-testing/veebers'
+        notify_context = 'continuous-integration/jenkins/pr-head',
         githubNotify(
             context: notify_context,
             description: 'CI Run started.',
